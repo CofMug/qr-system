@@ -1,54 +1,9 @@
-
 <!DOCTYPE html>
 <html>
 
 <head>
-
-  <base target="_top">
-
-  <style>
-
-    body{
-      margin:0;
-      font-family:Arial;
-      background:#0f172a;
-      color:white;
-      height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-    }
-
-    .card{
-      background:#1e293b;
-      padding:30px;
-      border-radius:15px;
-      width:320px;
-    }
-
-    input{
-      width:100%;
-      padding:12px;
-      margin-top:10px;
-      border:none;
-      border-radius:10px;
-      box-sizing:border-box;
-    }
-
-    button{
-      width:100%;
-      padding:12px;
-      margin-top:15px;
-      border:none;
-      border-radius:10px;
-      background:#16a34a;
-      color:white;
-      font-weight:bold;
-      cursor:pointer;
-    }
-
-  </style>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -57,56 +12,25 @@
 
   <h2>REGISTER</h2>
 
-  <input id="name" placeholder="Full Name">
+  <input id="n" placeholder="Full Name">
+  <input id="u" placeholder="Username">
+  <input id="p" type="password" placeholder="Password">
 
-  <input id="username" placeholder="Username">
+  <button onclick="register()">CREATE ACCOUNT</button>
 
-  <input
-    id="password"
-    type="password"
-    placeholder="Password"
-  >
-
-  <button onclick="registerUser()">
-    REGISTER
-  </button>
+  <p style="text-align:center;margin-top:10px;">
+    Already have account?
+    <a href="index.html" style="color:#60a5fa">Login</a>
+  </p>
 
 </div>
 
+<script src="app.js"></script>
+
 <script>
-
-function registerUser(){
-
-  const data = {
-
-    name:
-      document.getElementById("name").value,
-
-    username:
-      document.getElementById("username").value,
-
-    password:
-      document.getElementById("password").value
-
-  };
-
-  google.script.run
-    .withSuccessHandler(res => {
-
-      alert(res.message);
-
-      if(res.status){
-
-        window.top.location.href =
-          "<?= ScriptApp.getService().getUrl() ?>?page=login";
-
-      }
-
-    })
-    .registerUser(data);
-
+async function register(){
+  await registerUser();
 }
-
 </script>
 
 </body>
