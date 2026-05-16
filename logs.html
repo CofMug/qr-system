@@ -1,136 +1,60 @@
-
 <!DOCTYPE html>
 <html>
 
 <head>
-  <base target="_top">
-
-  <style>
-    body{
-      margin:0;
-      font-family:Arial;
-      background:#0f172a;
-      color:white;
-      padding:20px;
-    }
-
-    .card{
-      background:#1e293b;
-      padding:20px;
-      border-radius:15px;
-      max-width:1000px;
-      margin:auto;
-    }
-
-    table{
-      width:100%;
-      border-collapse:collapse;
-      margin-top:10px;
-      font-size:13px;
-    }
-
-    th,td{
-      border:1px solid #334155;
-      padding:8px;
-      text-align:left;
-    }
-
-    th{
-      background:#0b1220;
-    }
-
-    button{
-      padding:10px;
-      margin-bottom:10px;
-      border:none;
-      border-radius:8px;
-      background:#2563eb;
-      color:white;
-      cursor:pointer;
-    }
-
-    a{
-      color:#60a5fa;
-    }
-  </style>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <div class="card">
 
-  <h2>SCAN LOGS</h2>
+<h2>SCAN LOGS</h2>
 
-  <button onclick="loadLogs()">REFRESH</button>
+<button onclick="load()">LOAD</button>
 
-  <table>
-    <thead>
-      <tr>
-        <th>TIME</th>
-        <th>USER</th>
-        <th>QR</th>
-        <th>LAT</th>
-        <th>LNG</th>
-        <th>ACCURACY</th>
-        <th>MAP</th>
-      </tr>
-    </thead>
-
-    <tbody id="logsBody"></tbody>
-
-  </table>
+<table id="tbl" border="1" width="100%">
+</table>
 
 </div>
 
 <script>
 
-const user = JSON.parse(localStorage.getItem("user") || "null");
+const GAS_URL = "https://script.google.com/macros/s/AKfycbw7mtiLRNBdcY_boO-6D--U0xwFSP7JKUelZkrvKQj64JwWuRpxgOmnO58x0AvMphV4/exec";
 
-if(!user){
-  window.top.location.href =
-    "<?= ScriptApp.getService().getUrl() ?>?page=login";
-}
+async function load(){
 
-function loadLogs(){
+  const res = await fetch(GAS_URL,{
+    method:"POST",
+    body: JSON.stringify({action:"logs"})
+  });
 
-  google.script.run
-    .withSuccessHandler(renderLogs)
-    .getLogs();
+  const data = await res.json();
 
-}
+  let html="";
 
-function renderLogs(data){
-
-  let html = "";
-
-  data.reverse().forEach(r => {
+  data.data.forEach(r=>{
 
     html += `
       <tr>
         <td>${r[0]}</td>
         <td>${r[1]}</td>
         <td>${r[2]}</td>
-        <td>${r[3]}</td>
-        <td>${r[4]}</td>
-        <td>${r[5]}</td>
-        <td>
-          <a target="_blank" href="${r[6]}">
-            View
-          </a>
-        </td>
+        <td><a target="_blank" href="${r[6]}">Map</a></td>
       </tr>
     `;
 
   });
 
-  document.getElementById("logsBody").innerHTML = html;
+  document.getElementById("tbl").innerHTML = html;
 
 }
 
-loadLogs();
+load();
 
 </script>
 
 </body>
+
 </html>
