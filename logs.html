@@ -19,10 +19,11 @@ body{
   max-width:100%;
 }
 
+/* FILTERS */
 .filters{
   display:grid;
   gap:10px;
-  margin-bottom:15px;
+  margin-bottom:10px;
 }
 
 .filters input,
@@ -33,16 +34,17 @@ body{
   border-radius:8px;
 }
 
+/* BUTTON */
 button{
   background:#2563eb;
   color:white;
   cursor:pointer;
 }
 
+/* TABLE */
 .table-wrap{
-  max-height: 70vh;  
-  overflow-y: auto;
-  overflow-x: auto;
+  max-height:70vh;
+  overflow:auto;
 }
 
 table{
@@ -60,12 +62,24 @@ th,td{
 
 th{
   background:#1e293b;
+  position:sticky;
+  top:0;
+  z-index:1;
 }
 
 .qrcol{
-  min-width:200px;   /* 👈 wider QR column */
+  min-width:220px;
   max-width:300px;
   word-break:break-word;
+}
+
+/* PAGINATION */
+.pagination{
+  margin-top:10px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
 }
 
 .hidden{
@@ -95,7 +109,7 @@ th{
 
     <button onclick="todayFilter()">Today</button>
     <button onclick="yesterdayFilter()">Yesterday</button>
-    <button onclick="renderLogs()">Apply Filter</button>
+    <button onclick="loadLogs()">Reload</button>
 
   </div>
 
@@ -106,6 +120,7 @@ th{
   <h3>My Scan Logs</h3>
 </div>
 
+<!-- TABLE -->
 <div class="table-wrap">
 
 <table>
@@ -128,6 +143,17 @@ th{
 
 </div>
 
+<!-- PAGINATION -->
+<div class="pagination">
+
+<button onclick="prevPage()">Prev</button>
+
+<span id="pageInfo"></span>
+
+<button onclick="nextPage()">Next</button>
+
+</div>
+
 </div>
 
 <script>
@@ -143,8 +169,10 @@ if(!user){
 }
 
 let allLogs = [];
+let currentPage = 1;
+const rowsPerPage = 10;
 
-// 👑 ROLE UI CONTROL
+// 👑 ROLE CHECK
 if(user.role !== "ADMIN"){
   document.getElementById("adminPanel").style.display = "none";
   document.getElementById("userPanel").classList.remove("hidden");
@@ -160,28 +188,27 @@ async function loadLogs(){
     })
   });
 
-  const data = await res.json();
+  const result = await res.json();
 
-  if(!data.status){
+  if(!result.status){
     alert("Failed to load logs");
     return;
   }
 
-  allLogs = data.data.reverse();
+  allLogs = result.data.reverse();
 
   populateUsers();
   renderLogs();
 
 }
 
-// ================= USERS DROPDOWN =================
+// ================= USERS =================
 function populateUsers(){
 
   const users =
     [...new Set(allLogs.map(r => r[1]))];
 
-  let html =
-    `<option value="">All Users</option>`;
+  let html = `<option value="">All Users</option>`;
 
   users.forEach(u=>{
     html += `<option value="${u}">${u}</option>`;
@@ -191,14 +218,14 @@ function populateUsers(){
 
 }
 
-
+// ================= FORMAT TIME =================
 function formatTime(value){
 
   if(!value) return "";
 
   const d = new Date(value);
 
-  if(isNaN(d)) return value; // fallback if already formatted
+  if(isNaN(d)) return value;
 
   return d.toLocaleString("en-PH", {
     timeZone: "Asia/Manila",
@@ -224,7 +251,7 @@ function renderLogs(){
 
   let rows = allLogs;
 
-  // 👤 NORMAL USER VIEW
+  // 👤 NORMAL USER
   if(user.role !== "ADMIN"){
     rows = rows.filter(r => r[1] === user.username);
   }
@@ -241,9 +268,15 @@ function renderLogs(){
     );
   }
 
+  // ================= PAGINATION =================
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+
+  const pageRows = rows.slice(start, end);
+
   let html = "";
 
-  rows.forEach(r=>{
+  pageRows.forEach(r=>{
     html += `
       <tr>
         <td>${formatTime(r[0])}</td>
@@ -252,19 +285,53 @@ function renderLogs(){
         <td>${r[3]}</td>
         <td>${r[4]}</td>
         <td>${r[5]}</td>
-        <td>
-          <a target="_blank" href="${r[6]}">Open</a>
-        </td>
+        <td><a target="_blank" href="${r[6]}">Open</a></td>
       </tr>
     `;
   });
 
   document.getElementById("tbody").innerHTML = html;
 
+  renderPagination(rows.length);
+
 }
 
-// ================= QUICK FILTERS =================
+// ================= PAGINATION =================
+function renderPagination(totalRows){
+
+  const totalPages =
+    Math.ceil(totalRows / rowsPerPage);
+
+  document.getElementById("pageInfo").innerText =
+    `Page ${currentPage} / ${totalPages || 1}`;
+
+}
+
+function nextPage(){
+
+  const maxPages =
+    Math.ceil(allLogs.length / rowsPerPage);
+
+  if(currentPage < maxPages){
+    currentPage++;
+    renderLogs();
+  }
+
+}
+
+function prevPage(){
+
+  if(currentPage > 1){
+    currentPage--;
+    renderLogs();
+  }
+
+}
+
+// ================= FILTERS =================
 function todayFilter(){
+
+  currentPage = 1;
 
   const d = new Date();
 
@@ -276,6 +343,8 @@ function todayFilter(){
 }
 
 function yesterdayFilter(){
+
+  currentPage = 1;
 
   const d = new Date();
   d.setDate(d.getDate()-1);
