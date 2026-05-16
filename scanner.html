@@ -4,9 +4,7 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://unpkg.com/html5-qrcode"></script>
-
 <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
@@ -21,14 +19,17 @@
 
 </div>
 
-<script src="app.js"></script>
-
 <script>
 
-const GAS_URL =
-"https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
+const GAS_URL = "YOUR_GAS_URL";
 
-let scanner = new Html5Qrcode("reader");
+const user = JSON.parse(localStorage.getItem("user"));
+
+if(!user){
+  window.location.href="index.html";
+}
+
+const scanner = new Html5Qrcode("reader");
 
 scanner.start(
   { facingMode:"environment" },
@@ -42,11 +43,11 @@ function onScan(text){
 
   navigator.geolocation.getCurrentPosition(pos=>{
 
-    fetch(GAS_URL, {
+    fetch(GAS_URL,{
       method:"POST",
       body: JSON.stringify({
         action:"save",
-        user:"demo",
+        user:user.username,
         qr:text,
         lat:pos.coords.latitude,
         lng:pos.coords.longitude,
