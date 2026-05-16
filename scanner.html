@@ -19,9 +19,11 @@
 
 </div>
 
+<!-- 🔊 BEEP SOUND -->
+<audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+
 <script>
 
-const GAS_URL = "YOUR_GAS_URL";
 const GAS_URL = "https://script.google.com/macros/s/AKfycbw7mtiLRNBdcY_boO-6D--U0xwFSP7JKUelZkrvKQj64JwWuRpxgOmnO58x0AvMphV4/exec";
 
 const user = JSON.parse(localStorage.getItem("user"));
@@ -38,22 +40,43 @@ scanner.start(
   onScan
 );
 
+// ========================
+// SCAN HANDLER
+// ========================
 function onScan(text){
 
-  document.getElementById("result").innerText = text;
+  // 🔊 PLAY BEEP
+  document.getElementById("beep").play();
 
-  navigator.geolocation.getCurrentPosition(pos=>{
+  // show QR result
+  document.getElementById("result").innerText = "QR: " + text;
 
-    fetch(GAS_URL,{
-      method:"POST",
-      body: JSON.stringify({
-        action:"save",
-        user:user.username,
-        qr:text,
-        lat:pos.coords.latitude,
-        lng:pos.coords.longitude,
-        accuracy:pos.coords.accuracy
-      })
+  // 🛑 STOP SCANNER after successful scan
+  scanner.stop().then(() => {
+
+    navigator.geolocation.getCurrentPosition(pos=>{
+
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const acc = pos.coords.accuracy;
+
+      // show coordinates on UI (optional but useful)
+      document.getElementById("result").innerText =
+        "QR: " + text + "\nLat: " + lat + "\nLng: " + lng;
+
+      // send to GAS
+      fetch(GAS_URL,{
+        method:"POST",
+        body: JSON.stringify({
+          action:"save",
+          user:user.username,
+          qr:text,
+          lat:lat,
+          lng:lng,
+          accuracy:acc
+        })
+      });
+
     });
 
   });
@@ -63,4 +86,5 @@ function onScan(text){
 </script>
 
 </body>
+
 </html>
