@@ -1,1 +1,64 @@
+<!DOCTYPE html>
+<html>
 
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>QR SCANNER</h2>
+
+<div id="reader"></div>
+
+<p id="result">Waiting...</p>
+
+</div>
+
+<script src="app.js"></script>
+
+<script>
+
+const GAS_URL =
+"https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
+
+let scanner = new Html5Qrcode("reader");
+
+scanner.start(
+  { facingMode:"environment" },
+  { fps:10, qrbox:250 },
+  onScan
+);
+
+function onScan(text){
+
+  document.getElementById("result").innerText = text;
+
+  navigator.geolocation.getCurrentPosition(pos=>{
+
+    fetch(GAS_URL, {
+      method:"POST",
+      body: JSON.stringify({
+        action:"save",
+        user:"demo",
+        qr:text,
+        lat:pos.coords.latitude,
+        lng:pos.coords.longitude,
+        accuracy:pos.coords.accuracy
+      })
+    });
+
+  });
+
+}
+
+</script>
+
+</body>
+</html>
