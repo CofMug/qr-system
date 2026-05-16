@@ -122,15 +122,25 @@ button{
 </div>
 
 <script>
-  const user =
-    JSON.parse(localStorage.getItem("user"));
-    
-    if(!user){
-      window.location.href = "index.html";
-    }
+  const user = JSON.parse(localStorage.getItem("user"));
+  
+  if(!user){
+    window.location.href = "index.html";
+  }
 
 const GAS_URL =
 "https://script.google.com/macros/s/AKfycbw7mtiLRNBdcY_boO-6D--U0xwFSP7JKUelZkrvKQj64JwWuRpxgOmnO58x0AvMphV4/exec";
+
+  if(user.role !== "ADMIN"){
+
+  // hide admin filters
+  document.getElementById("adminPanel")
+    .style.display = "none";
+
+  document.getElementById("userPanel")
+    .style.display = "block";
+
+}
 
 let allLogs = [];
 
