@@ -2,52 +2,105 @@
 <html>
 
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
+  padding:12px;
+}
+
+.card{
+  max-width:100%;
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
+}
+
+th,td{
+  border:1px solid #334155;
+  padding:8px;
+  text-align:left;
+}
+
+th{
+  background:#1e293b;
+}
+
+a{
+  color:#60a5fa;
+}
+</style>
+
 </head>
 
 <body>
 
-<div class="card">
+<h3>SCAN LOGS</h3>
 
-<h2>SCAN LOGS</h2>
+<table>
 
-<button onclick="load()">LOAD</button>
+<thead>
+<tr>
+  <th>TIME</th>
+  <th>USER</th>
+  <th>QR</th>
+  <th>LAT</th>
+  <th>LNG</th>
+  <th>ACCURACY</th>
+  <th>MAP</th>
+</tr>
+</thead>
 
-<table id="tbl" border="1" width="100%">
+<tbody id="body"></tbody>
+
 </table>
-
-</div>
 
 <script>
 
 const GAS_URL = "https://script.google.com/macros/s/AKfycbw7mtiLRNBdcY_boO-6D--U0xwFSP7JKUelZkrvKQj64JwWuRpxgOmnO58x0AvMphV4/exec";
 
+const user = JSON.parse(localStorage.getItem("user"));
+
+if(!user){
+  window.location.href="index.html";
+}
+
 async function load(){
 
   const res = await fetch(GAS_URL,{
     method:"POST",
-    body: JSON.stringify({action:"logs"})
+    body:JSON.stringify({action:"logs"})
   });
 
   const data = await res.json();
 
   let html="";
 
-  data.data.forEach(r=>{
+  data.data.reverse().forEach(r=>{
 
     html += `
       <tr>
         <td>${r[0]}</td>
         <td>${r[1]}</td>
         <td>${r[2]}</td>
+        <td>${r[3]}</td>
+        <td>${r[4]}</td>
+        <td>${r[5]}</td>
         <td><a target="_blank" href="${r[6]}">Map</a></td>
       </tr>
     `;
 
   });
 
-  document.getElementById("tbl").innerHTML = html;
+  document.getElementById("body").innerHTML = html;
 
 }
 
