@@ -1,17 +1,21 @@
-
 body{
   margin:0;
   font-family:Arial;
   background:#0f172a;
   color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
 }
 
 .card{
-  max-width:420px;
-  margin:auto;
-  padding:16px;
+  width:90%;
+  max-width:360px;
   background:#1e293b;
+  padding:20px;
   border-radius:14px;
+  box-sizing:border-box;
 }
 
 input,button{
@@ -20,16 +24,15 @@ input,button{
   margin-top:10px;
   border:none;
   border-radius:8px;
+  box-sizing:border-box;
 }
 
 button{
   background:#2563eb;
   color:white;
+  cursor:pointer;
 }
 
-#reader{
-  width:100%;
-  aspect-ratio:1/1;
-  background:black;
-  border-radius:12px;
+a{
+  text-decoration:none;
 }
