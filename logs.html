@@ -189,6 +189,28 @@ function populateUsers(){
 
 }
 
+
+function formatTime(value){
+
+  if(!value) return "";
+
+  const d = new Date(value);
+
+  if(isNaN(d)) return value; // fallback if already formatted
+
+  return d.toLocaleString("en-PH", {
+    timeZone: "Asia/Manila",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  });
+
+}
+
 // ================= RENDER LOGS =================
 function renderLogs(){
 
@@ -222,7 +244,7 @@ function renderLogs(){
   rows.forEach(r=>{
     html += `
       <tr>
-        <td>${r[0]}</td>
+        <td>${formatTime(r[0])}</td>
         <td>${r[1]}</td>
         <td class="qrcol">${r[2]}</td>
         <td>${r[3]}</td>
