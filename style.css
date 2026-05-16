@@ -1,1 +1,35 @@
 
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
+}
+
+.card{
+  max-width:420px;
+  margin:auto;
+  padding:16px;
+  background:#1e293b;
+  border-radius:14px;
+}
+
+input,button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+}
+
+button{
+  background:#2563eb;
+  color:white;
+}
+
+#reader{
+  width:100%;
+  aspect-ratio:1/1;
+  background:black;
+  border-radius:12px;
+}
