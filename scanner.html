@@ -15,9 +15,12 @@
 
 <div id="reader"></div>
 
-<p id="result">Initializing camera...</p>
+<p id="result">Waiting...</p>
 
 </div>
+
+<!-- 🔊 BEEP SOUND -->
+<audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
 <script>
 
@@ -29,80 +32,53 @@ if(!user){
   window.location.href="index.html";
 }
 
-let scanner;
+const scanner = new Html5Qrcode("reader");
 
-// ==========================
-// WAIT FOR DOM (IMPORTANT FIX)
-// ==========================
-window.onload = function(){
+scanner.start(
+  { facingMode:"environment" },
+  { fps:10, qrbox:250 },
+  onScan
+);
 
-  try{
-
-    scanner = new Html5Qrcode("reader");
-
-    scanner.start(
-      { facingMode: "environment" },
-      {
-        fps: 10,
-        qrbox: 250
-      },
-      onScan
-    ).then(() => {
-
-      document.getElementById("result").innerText =
-        "Camera started ✔";
-
-    }).catch(err => {
-
-      console.error(err);
-
-      document.getElementById("result").innerText =
-        "❌ Camera failed: " + err;
-
-    });
-
-  }catch(e){
-
-    document.getElementById("result").innerText =
-      "❌ Scanner error: " + e;
-
-  }
-
-};
-
-// ==========================
-// SCAN RESULT
-// ==========================
+// ========================
+// SCAN HANDLER
+// ========================
 function onScan(text){
 
+  // 🔊 PLAY BEEP
+  document.getElementById("beep").play();
+
+  // show QR result
   document.getElementById("result").innerText = "QR: " + text;
 
-  // stop scanner safely
+  // 🛑 STOP SCANNER after successful scan
   scanner.stop().then(() => {
 
     navigator.geolocation.getCurrentPosition(pos=>{
 
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const acc = pos.coords.accuracy;
+
+      // show coordinates on UI (optional but useful)
+      document.getElementById("result").innerText =
+        "QR: " + text + "\nLat: " + lat + "\nLng: " + lng;
+
+      // send to GAS
       fetch(GAS_URL,{
         method:"POST",
         body: JSON.stringify({
           action:"save",
           user:user.username,
           qr:text,
-          lat:pos.coords.latitude,
-          lng:pos.coords.longitude,
-          accuracy:pos.coords.accuracy
+          lat:lat,
+          lng:lng,
+          accuracy:acc
         })
       });
 
-      // restart after short delay (optional)
-      setTimeout(() => {
-        location.reload();
-      }, 1000);
-
     });
 
-  }).catch(err => {
-    console.log("Stop error:", err);
   });
 
 }
