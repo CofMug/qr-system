@@ -1,1 +1,106 @@
 
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <base target="_top">
+
+  <style>
+
+    body{
+      margin:0;
+      font-family:Arial;
+      background:#0f172a;
+      color:white;
+      padding:20px;
+    }
+
+    .card{
+      background:#1e293b;
+      padding:30px;
+      border-radius:15px;
+      max-width:500px;
+      margin:auto;
+      margin-top:50px;
+    }
+
+    button{
+      width:100%;
+      padding:15px;
+      margin-top:15px;
+      border:none;
+      border-radius:10px;
+      background:#2563eb;
+      color:white;
+      font-size:16px;
+      cursor:pointer;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+  <h1>DASHBOARD</h1>
+
+  <h3 id="welcome"></h3>
+
+  <button onclick="openScanner()">
+    OPEN SCANNER
+  </button>
+
+  <button onclick="goLogs()">
+    VIEW LOGS
+  </button>
+
+  <button onclick="logout()">
+    LOGOUT
+  </button>
+
+</div>
+
+<script>
+
+const user =
+JSON.parse(localStorage.getItem("user"));
+
+if(!user){
+
+  window.top.location.href =
+    "<?= ScriptApp.getService().getUrl() ?>?page=login";
+
+}
+
+document.getElementById("welcome")
+.innerHTML =
+"Welcome " + user.name;
+
+function openScanner(){
+
+  window.top.location.href =
+    "<?= ScriptApp.getService().getUrl() ?>?page=scanner";
+
+}
+
+function logout(){
+
+  localStorage.removeItem("user");
+
+  window.top.location.href =
+    "<?= ScriptApp.getService().getUrl() ?>?page=login";
+
+}
+
+function goLogs(){
+  window.top.location.href =
+  "<?= ScriptApp.getService().getUrl() ?>?page=logs";
+}
+
+</script>
+
+</body>
+</html>
