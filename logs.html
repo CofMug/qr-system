@@ -2,20 +2,26 @@
 <html>
 
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="style.css">
 
 <style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#0f172a;
-  color:white;
-  padding:12px;
+
+.filters{
+  display:grid;
+  gap:10px;
+  margin-bottom:15px;
 }
 
-.card{
-  max-width:100%;
-  overflow-x:auto;
+.filters input,
+.filters select,
+.filters button{
+  padding:10px;
+  border:none;
+  border-radius:8px;
 }
 
 table{
@@ -34,16 +40,54 @@ th{
   background:#1e293b;
 }
 
-a{
-  color:#60a5fa;
+.qrcol{
+  min-width:150px;
+  max-width:250px;
+  word-break:break-word;
 }
+
+.table-wrap{
+  overflow:auto;
+}
+
+button{
+  background:#2563eb;
+  color:white;
+}
+
 </style>
 
 </head>
 
 <body>
 
-<h3>SCAN LOGS</h3>
+<div class="card">
+
+<h2>ADMIN LOGS PANEL</h2>
+
+<div class="filters">
+
+<input type="date" id="dateFilter">
+
+<select id="userFilter">
+  <option value="">All Users</option>
+</select>
+
+<button onclick="todayFilter()">
+  Today
+</button>
+
+<button onclick="yesterdayFilter()">
+  Yesterday
+</button>
+
+<button onclick="loadLogs()">
+  Apply Filter
+</button>
+
+</div>
+
+<div class="table-wrap">
 
 <table>
 
@@ -51,63 +95,152 @@ a{
 <tr>
   <th>TIME</th>
   <th>USER</th>
-  <th>QR</th>
+  <th class="qrcol">QR</th>
   <th>LAT</th>
   <th>LNG</th>
-  <th>ACCURACY</th>
+  <th>ACC</th>
   <th>MAP</th>
 </tr>
 </thead>
 
-<tbody id="body"></tbody>
+<tbody id="tbody"></tbody>
 
 </table>
 
+</div>
+
+</div>
+
 <script>
 
-const GAS_URL = "https://script.google.com/macros/s/AKfycbw7mtiLRNBdcY_boO-6D--U0xwFSP7JKUelZkrvKQj64JwWuRpxgOmnO58x0AvMphV4/exec";
+const GAS_URL =
+"https://script.google.com/macros/s/AKfycbw7mtiLRNBdcY_boO-6D--U0xwFSP7JKUelZkrvKQj64JwWuRpxgOmnO58x0AvMphV4/exec";
 
-const user = JSON.parse(localStorage.getItem("user"));
+let allLogs = [];
 
-if(!user){
-  window.location.href="index.html";
-}
-
-async function load(){
+// ================= LOAD =================
+async function loadLogs(){
 
   const res = await fetch(GAS_URL,{
     method:"POST",
-    body:JSON.stringify({action:"logs"})
+    body:JSON.stringify({
+      action:"logs"
+    })
   });
 
   const data = await res.json();
 
-  let html="";
+  allLogs = data.data.reverse();
 
-  data.data.reverse().forEach(r=>{
+  renderLogs();
+
+  populateUsers();
+
+}
+
+// ================= USERS =================
+function populateUsers(){
+
+  const users =
+    [...new Set(allLogs.map(r => r[1]))];
+
+  let html =
+    `<option value="">All Users</option>`;
+
+  users.forEach(u=>{
+
+    html += `<option>${u}</option>`;
+
+  });
+
+  document.getElementById("userFilter").innerHTML =
+    html;
+
+}
+
+// ================= RENDER =================
+function renderLogs(){
+
+  const date =
+    document.getElementById("dateFilter").value;
+
+  const user =
+    document.getElementById("userFilter").value;
+
+  let rows = allLogs;
+
+  if(date){
+
+    rows = rows.filter(r =>
+      String(r[0]).includes(date)
+    );
+
+  }
+
+  if(user){
+
+    rows = rows.filter(r =>
+      r[1] === user
+    );
+
+  }
+
+  let html = "";
+
+  rows.forEach(r=>{
 
     html += `
-      <tr>
-        <td>${r[0]}</td>
-        <td>${r[1]}</td>
-        <td>${r[2]}</td>
-        <td>${r[3]}</td>
-        <td>${r[4]}</td>
-        <td>${r[5]}</td>
-        <td><a target="_blank" href="${r[6]}">Map</a></td>
-      </tr>
+    <tr>
+      <td>${r[0]}</td>
+      <td>${r[1]}</td>
+      <td class="qrcol">${r[2]}</td>
+      <td>${r[3]}</td>
+      <td>${r[4]}</td>
+      <td>${r[5]}</td>
+      <td>
+        <a target="_blank"
+        href="${r[6]}">
+        Open
+        </a>
+      </td>
+    </tr>
     `;
 
   });
 
-  document.getElementById("body").innerHTML = html;
+  document.getElementById("tbody").innerHTML =
+    html;
 
 }
 
-load();
+// ================= QUICK FILTERS =================
+function todayFilter(){
+
+  const d = new Date();
+
+  document.getElementById("dateFilter").value =
+    d.toISOString().split("T")[0];
+
+  renderLogs();
+
+}
+
+function yesterdayFilter(){
+
+  const d = new Date();
+
+  d.setDate(d.getDate()-1);
+
+  document.getElementById("dateFilter").value =
+    d.toISOString().split("T")[0];
+
+  renderLogs();
+
+}
+
+loadLogs();
 
 </script>
 
 </body>
-
 </html>
