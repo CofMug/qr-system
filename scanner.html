@@ -2,58 +2,149 @@
 <html>
 
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://unpkg.com/html5-qrcode"></script>
-<link rel="stylesheet" href="style.css">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
+  padding:12px;
+}
+
+.card{
+  max-width:420px;
+  margin:auto;
+  background:#1e293b;
+  padding:15px;
+  border-radius:12px;
+}
+
+#reader{
+  width:100%;
+  aspect-ratio:1/1;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:10px;
+  background:#2563eb;
+  color:white;
+}
+</style>
 </head>
 
 <body>
 
 <div class="card">
 
-<h2>QR SCANNER</h2>
+<h3>QR SCANNER</h3>
 
 <div id="reader"></div>
 
-<p id="result">Waiting...</p>
+<button onclick="toggleFlash()">Toggle Flashlight</button>
+
+<p id="status">Waiting...</p>
 
 </div>
+
+<!-- 🔊 BEEP SOUND -->
+<audio id="beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
 <script>
 
 const GAS_URL = "https://script.google.com/macros/s/AKfycbw7mtiLRNBdcY_boO-6D--U0xwFSP7JKUelZkrvKQj64JwWuRpxgOmnO58x0AvMphV4/exec";
-
 const user = JSON.parse(localStorage.getItem("user"));
+
+let scanner;
+let track;
 
 if(!user){
   window.location.href="index.html";
 }
 
-const scanner = new Html5Qrcode("reader");
+// ===================== SCANNER =====================
+scanner = new Html5Qrcode("reader");
 
 scanner.start(
   { facingMode:"environment" },
   { fps:10, qrbox:250 },
   onScan
-);
+).then(()=>{
 
+  document.getElementById("status").innerText =
+    "Camera active";
+
+});
+
+// ===================== FLASHLIGHT =====================
+async function toggleFlash(){
+
+  try{
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video:{ facingMode:"environment" }
+    });
+
+    track = stream.getVideoTracks()[0];
+
+    const cap = track.getCapabilities();
+
+    if(!cap.torch){
+      alert("Flashlight not supported");
+      return;
+    }
+
+    await track.applyConstraints({
+      advanced:[{ torch: !window.flashOn }]
+    });
+
+    window.flashOn = !window.flashOn;
+
+  }catch(e){
+    alert("Flash not available");
+  }
+
+}
+
+// ===================== ON SCAN =====================
 function onScan(text){
 
-  document.getElementById("result").innerText = text;
+  // 🔊 beep
+  document.getElementById("beep").play();
+
+  document.getElementById("status").innerText =
+    "QR: " + text;
+
+  scanner.stop();
 
   navigator.geolocation.getCurrentPosition(pos=>{
 
+    const data = {
+      action:"save",
+      user:user.username,
+      qr:text,
+      lat:pos.coords.latitude,
+      lng:pos.coords.longitude,
+      accuracy:pos.coords.accuracy
+    };
+
     fetch(GAS_URL,{
       method:"POST",
-      body: JSON.stringify({
-        action:"save",
-        user:user.username,
-        qr:text,
-        lat:pos.coords.latitude,
-        lng:pos.coords.longitude,
-        accuracy:pos.coords.accuracy
-      })
+      body:JSON.stringify(data)
     });
+
+    // 🚀 GO TO LOGS AFTER SUCCESS
+    setTimeout(()=>{
+      window.location.href="logs.html";
+    },800);
 
   });
 
