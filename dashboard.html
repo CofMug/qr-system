@@ -49,25 +49,21 @@ document.getElementById("welcome")
 .innerHTML =
 "Welcome " + user.name;
 
-function openScanner(){
-
-  window.top.location.href =
-    "<?= ScriptApp.getService().getUrl() ?>?page=scanner";
-
+function goScanner(){
+  window.location.href = "scanner.html";
 }
 
+function goLogs(){
+  window.location.href = "logs.html";
+}
+  
 function logout(){
 
   localStorage.removeItem("user");
 
   window.top.location.href =
-    "<?= ScriptApp.getService().getUrl() ?>?page=login";
+    window.location.href = "index.html";
 
-}
-
-function goLogs(){
-  window.top.location.href =
-  "<?= ScriptApp.getService().getUrl() ?>?page=logs";
 }
 
 </script>
