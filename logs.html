@@ -195,6 +195,15 @@ function renderLogs(){
 
   let rows = allLogs;
 
+  // NORMAL USER
+  if(user.role !== "ADMIN"){
+  
+    rows = rows.filter(r =>
+      r[1] === user.username
+    );
+  
+  }
+
   if(date){
 
     rows = rows.filter(r =>
