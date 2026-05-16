@@ -1,1 +1,128 @@
 
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <base target="_top">
+
+  <style>
+
+    body{
+      margin:0;
+      font-family:Arial;
+      background:#0f172a;
+      color:white;
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+
+    .card{
+      background:#1e293b;
+      padding:30px;
+      border-radius:15px;
+      width:320px;
+    }
+
+    input{
+      width:100%;
+      padding:12px;
+      margin-top:10px;
+      border:none;
+      border-radius:10px;
+      box-sizing:border-box;
+    }
+
+    button{
+      width:100%;
+      padding:12px;
+      margin-top:15px;
+      border:none;
+      border-radius:10px;
+      background:#2563eb;
+      color:white;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    a{
+      color:#93c5fd;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+  <h2>LOGIN</h2>
+
+  <input
+    id="username"
+    placeholder="Username"
+  >
+
+  <input
+    id="password"
+    type="password"
+    placeholder="Password"
+  >
+
+  <button onclick="login()">
+    LOGIN
+  </button>
+
+  <p>
+    No account?
+    <a href="<?= ScriptApp.getService().getUrl() ?>?page=register">
+      Register
+    </a>
+  </p>
+
+</div>
+
+<script>
+
+function login(){
+
+  const data = {
+
+    username:
+      document.getElementById("username").value,
+
+    password:
+      document.getElementById("password").value
+
+  };
+
+  google.script.run
+    .withSuccessHandler(res => {
+
+      if(!res.status){
+
+        alert("Invalid Login");
+        return;
+
+      }
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(res)
+      );
+
+      window.top.location.href =
+        "<?= ScriptApp.getService().getUrl() ?>?page=dashboard";
+
+    })
+    .loginUser(data);
+
+}
+
+</script>
+
+</body>
+</html>
