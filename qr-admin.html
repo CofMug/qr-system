@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+    body:JSON.stringify({
+      action:"addQR",
+      qr:qr.value,
+      name:name.value,
+      lat:lat.value,
+      lng:lng.value,
+      radius:radius.value
+    })
+  });
+
+  alert("QR Registered");
+
+  loadQRs();
+
+}
+
+async function loadQRs(){
+
+  const res = await fetch(GAS_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"getQRs"
+    })
+  });
+
+  const data = await res.json();
+
+  let html = "";
+
+  data.data.forEach(r=>{
+
+    html += `
+    <div style="background:#334155;padding:10px;border-radius:10px;margin-top:10px;">
+
+      <b>${r[0]}</b><br>
+      ${r[1]}<br>
+      Radius: ${r[4]}m<br><br>
+
+      <button onclick="deleteQR('${r[0]}')">
+      Delete
+      </button>
+
+    </div>
+    `;
+
+  });
+
+  document.getElementById("list").innerHTML = html;
+
+}
+
+async function deleteQR(qr){
+
+  if(!confirm("Delete QR?")) return;
+
+  await fetch(GAS_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"deleteQR",
+      qr:qr
+    })
+  });
+
+  loadQRs();
+
+}
+
+loadQRs();
+
+</script>
+
+</body>
+</html>
