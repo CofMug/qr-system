@@ -135,23 +135,29 @@ function showPopup(qr, lat, lng){
     <p><b>Lng:</b> ${lng}</p>
     <p><b>Radius:</b> ${radius}m</p>
 
-    <button class="btn-save" id="saveBtn">SAVE</button>
-    <button class="btn-cancel" id="cancelBtn">CANCEL</button>
+    <button data-action="save">SAVE</button>
+    <button data-action="cancel">CANCEL</button>
   `;
 
   document.body.appendChild(box);
 
-  document.getElementById("saveBtn").onclick = () => {
-    box.remove();
-    saveQR(qr, lat, lng, radius);
-  };
+  // ================= EVENT DELEGATION (FIX) =================
+  box.addEventListener("click", function(e){
 
-  document.getElementById("cancelBtn").onclick = () => {
-    box.remove();
-  };
+    const action = e.target.getAttribute("data-action");
+
+    if(action === "save"){
+      box.remove();
+      saveQR(qr, lat, lng, radius);
+    }
+
+    if(action === "cancel"){
+      box.remove();
+    }
+
+  });
 
 }
-
 // ================= SAVE =================
 async function saveQR(qr, lat, lng, radius){
 
