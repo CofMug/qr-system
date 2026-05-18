@@ -1,3 +1,5 @@
+<script>
+
 const GAS_URL = "https://script.google.com/macros/s/AKfycbw7mtiLRNBdcY_boO-6D--U0xwFSP7JKUelZkrvKQj64JwWuRpxgOmnO58x0AvMphV4/exec";
 
 // ================= ADD QR =================
@@ -12,10 +14,10 @@ async function addQR(){
     radius: radius.value.trim()
   };
 
-  const res = await fetch(GAS_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
+  const res = await fetch(GAS_URL,{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
     },
     body: JSON.stringify(payload)
   });
@@ -33,13 +35,13 @@ async function addQR(){
 // ================= LOAD QRs =================
 async function loadQRs(){
 
-  const res = await fetch(GAS_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
+  const res = await fetch(GAS_URL,{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
     },
     body: JSON.stringify({
-      action: "getQRs"
+      action:"getQRs"
     })
   });
 
@@ -60,13 +62,7 @@ async function loadQRs(){
     const radius = r[4];
 
     html += `
-      <div style="
-        background:#334155;
-        padding:12px;
-        margin-top:10px;
-        border-radius:10px;
-      ">
-
+      <div style="background:#334155;padding:12px;margin-top:10px;border-radius:10px;">
         <b>${escapeHtml(qrCode)}</b><br>
         ${escapeHtml(name)}<br>
         Radius: ${radius}m<br><br>
@@ -74,7 +70,6 @@ async function loadQRs(){
         <button onclick="deleteQR('${qrCode}')">
           Delete
         </button>
-
       </div>
     `;
   });
@@ -87,13 +82,13 @@ async function deleteQR(qr){
 
   if(!confirm("Delete QR?")) return;
 
-  const res = await fetch(GAS_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
+  const res = await fetch(GAS_URL,{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
     },
     body: JSON.stringify({
-      action: "deleteQR",
+      action:"deleteQR",
       qr: qr
     })
   });
@@ -107,16 +102,18 @@ async function deleteQR(qr){
   }
 }
 
-// ================= SAFE HTML ESCAPE =================
+// ================= SAFE ESCAPE =================
 function escapeHtml(text){
 
   return String(text)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
 
 // ================= INIT =================
 loadQRs();
+
+</script>
