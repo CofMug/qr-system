@@ -1,52 +1,155 @@
-body{
+*{
   margin:0;
-  font-family:Arial;
-  background:#0f172a;
-  color:white;
-  padding:15px;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial, sans-serif;
 }
 
+body{
+  background:#0f172a;
+  color:#fff;
+  padding:12px;
+}
+
+/* ================= CARD ================= */
 .card{
   background:#1e293b;
-  border-radius:18px;
-  padding:20px;
-  box-shadow:0 0 20px rgba(0,0,0,.3);
+  padding:16px;
+  border-radius:16px;
   max-width:500px;
   margin:auto;
+  box-shadow:0 10px 25px rgba(0,0,0,0.4);
 }
 
-input,
-select,
+/* ================= HEADINGS ================= */
+h2,h3{
+  margin-bottom:10px;
+}
+
+/* ================= INPUTS ================= */
+input, select{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:10px;
+  outline:none;
+}
+
+/* ================= BUTTONS ================= */
 button{
   width:100%;
   padding:12px;
   margin-top:10px;
   border:none;
   border-radius:10px;
-  box-sizing:border-box;
-}
-
-button{
   background:#2563eb;
   color:white;
   font-weight:bold;
+  cursor:pointer;
 }
 
 button:hover{
-  opacity:.9;
+  opacity:0.9;
 }
 
 .back-btn{
   background:#475569;
+}
+
+/* ================= QR SCANNER ================= */
+#reader{
+  width:100% !important;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+/* ================= RESULT BOX ================= */
+#result{
+  margin-top:10px;
+  padding:10px;
+  background:#0f172a;
+  border-radius:10px;
+  font-size:14px;
+  word-break:break-word;
+}
+
+/* ================= ACTION BUTTONS ================= */
+.actions{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+.actions button{
+  flex:1;
+}
+
+/* ================= TABLE WRAP ================= */
+.table-wrap{
+  width:100%;
+  overflow-x:auto;
+  margin-top:10px;
+}
+
+/* ================= TABLE ================= */
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:700px;
+  font-size:12px;
+}
+
+th, td{
+  border:1px solid #334155;
+  padding:8px;
+  text-align:left;
+  vertical-align:top;
+}
+
+th{
+  background:#111827;
+  position:sticky;
+  top:0;
+}
+
+/* QR COLUMN */
+.qrcol{
+  min-width:200px;
+  max-width:300px;
+  word-break:break-word;
+}
+
+/* ================= FILTERS ================= */
+.filters{
+  display:grid;
+  gap:10px;
   margin-bottom:10px;
 }
 
-#reader{
-  width:100%;
-  overflow:hidden;
-  border-radius:12px;
+/* ================= PAGINATION ================= */
+.pagination{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  margin-top:10px;
 }
 
-a{
-  color:#60a5fa;
+/* ================= MOBILE FIX ================= */
+@media (max-width:600px){
+
+  .card{
+    width:100%;
+    border-radius:12px;
+  }
+
+  table{
+    min-width:600px;
+  }
+
+  button{
+    font-size:14px;
+  }
+
 }
