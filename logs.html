@@ -136,6 +136,7 @@ th{
   <th>LNG</th>
   <th>ACC</th>
   <th>MAP</th>
+  <th>Status</th>
 </tr>
 </thead>
 
@@ -288,6 +289,7 @@ function renderLogs(){
         <td>${r[4]}</td>
         <td>${r[5]}</td>
         <td><a target="_blank" href="${r[6]}">Open</a></td>
+        <td>${r[7]}</td>
       </tr>
     `;
   });
@@ -391,11 +393,11 @@ function exportExcel(){
   const rows = getFilteredRows();
 
   let csv =
-    "TIME,USER,QR,LAT,LNG,ACC,MAP\n";
+    "TIME,USER,QR,LAT,LNG,ACC,MAP,STATUS\n";
 
   rows.forEach(r=>{
     csv +=
-`${r[0]},${r[1]},"${r[2]}",${r[3]},${r[4]},${r[5]},${r[6]}\n`;
+`${r[0]},${r[1]},"${r[2]}",${r[3]},${r[4]},${r[5]},${r[6]},${r[7]}\n`;
   });
 
   const blob = new Blob([csv], {
@@ -444,6 +446,7 @@ function exportPDF(){
     <th>LNG</th>
     <th>ACC</th>
     <th>MAP</th>
+    <th>STATUS</th>
   </tr>
   `;
 
@@ -457,6 +460,7 @@ function exportPDF(){
       <td>${r[4]}</td>
       <td>${r[5]}</td>
       <td>${r[6]}</td>
+      <td>${r[7]}</td>
     </tr>
     `;
   });
