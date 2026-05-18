@@ -50,6 +50,10 @@ if(!user){
 
 }
 
+if(user.role !== "ADMIN"){
+  document.getElementById("qrAdminBtn").style.display = "none";
+}
+
 document.getElementById("welcome")
 .innerHTML =
 "Welcome " + user.name;
