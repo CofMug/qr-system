@@ -1,79 +1,131 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://unpkg.com/html5-qrcode"></script>
 
-  <div style="max-width:400px;margin:auto;background:#1e293b;padding:15px;border-radius:12px;color:white">
-  
-  <h3>QR Scanner</h3>
-  
-  <input id="radius" placeholder="Radius (meters)" value="20">
-  
-  <div id="reader"></div>
-  
-  <p id="status">Waiting scan...</p>
-  
-  </div>
+<style>
+
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
+}
+
+.card{
+  max-width:420px;
+  margin:auto;
+  background:#1e293b;
+  padding:15px;
+  border-radius:12px;
+}
+
+#reader{
+  width:100%;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin-bottom:10px;
+  border:none;
+  border-radius:8px;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.btn-save{ background:#22c55e; color:white; }
+.btn-cancel{ background:#ef4444; color:white; }
+
+.popup{
+  position:fixed;
+  top:20%;
+  left:50%;
+  transform:translateX(-50%);
+  background:#0f172a;
+  padding:15px;
+  border-radius:12px;
+  width:90%;
+  max-width:300px;
+  z-index:9999;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h3>QR Scanner</h3>
+
+<input id="radius" placeholder="Radius (meters)" value="20">
+
+<div id="reader"></div>
+
+<p id="status">Waiting scan...</p>
+
+</div>
 
 <script>
 
 const GAS_URL = "https://script.google.com/macros/s/AKfycbw7mtiLRNBdcY_boO-6D--U0xwFSP7JKUelZkrvKQj64JwWuRpxgOmnO58x0AvMphV4/exec";
 
-const scanner = new Html5Qrcode("reader");
+const statusEl = document.getElementById("status");
 
-let lastQR = "";
-let lastPos = null;
+let scanner;
+
+// ================= START SCANNER =================
+scanner = new Html5Qrcode("reader");
 
 scanner.start(
   { facingMode:"environment" },
   { fps:10, qrbox:250 },
-  onScan
+  (qrText) => onScan(qrText)
 );
 
 // ================= SCAN =================
 function onScan(qrText){
 
-  lastQR = qrText;
-
-  status.innerText = "📍 Getting GPS...";
+  statusEl.innerText = "📍 Getting GPS...";
 
   navigator.geolocation.getCurrentPosition(pos => {
-
-    lastPos = pos;
 
     const lat = pos.coords.latitude;
     const lng = pos.coords.longitude;
 
-    status.innerHTML =
+    statusEl.innerHTML =
       "QR: " + qrText + "<br>" +
       "Lat: " + lat + "<br>" +
-      "Lng: " + lng + "<br><br>" +
-      "✔ Scan Success - Confirm Save?";
+      "Lng: " + lng;
 
-    showConfirmPopup(qrText, lat, lng);
+    showPopup(qrText, lat, lng);
 
   });
 
 }
 
-// ================= CONFIRM POPUP =================
-function showConfirmPopup(qr, lat, lng){
+// ================= POPUP =================
+function showPopup(qr, lat, lng){
 
-  const radius = document.getElementById("radius").value || 100;
+  const radius = document.getElementById("radius").value || 20;
 
   const box = document.createElement("div");
 
-  box.style = `
-    position:fixed;
-    top:20%;
-    left:50%;
-    transform:translateX(-50%);
-    background:#0f172a;
-    color:white;
-    padding:20px;
-    border-radius:12px;
-    width:90%;
-    max-width:300px;
-    z-index:9999;
-    box-shadow:0 0 20px black;
-  `;
+  box.className = "popup";
 
   box.innerHTML = `
     <h3>Confirm Save</h3>
@@ -83,23 +135,18 @@ function showConfirmPopup(qr, lat, lng){
     <p><b>Lng:</b> ${lng}</p>
     <p><b>Radius:</b> ${radius}m</p>
 
-    <button id="saveBtn">✅ Save</button>
-    <button id="cancelBtn">❌ Cancel</button>
+    <button class="btn-save" id="saveBtn">SAVE</button>
+    <button class="btn-cancel" id="cancelBtn">CANCEL</button>
   `;
 
   document.body.appendChild(box);
 
-  // SAVE
-  document.getElementById("saveBtn").onclick = async function(){
-
+  document.getElementById("saveBtn").onclick = () => {
     box.remove();
-
-    await saveQR(qr, lat, lng, radius);
-
+    saveQR(qr, lat, lng, radius);
   };
 
-  // CANCEL
-  document.getElementById("cancelBtn").onclick = function(){
+  document.getElementById("cancelBtn").onclick = () => {
     box.remove();
   };
 
@@ -110,13 +157,11 @@ async function saveQR(qr, lat, lng, radius){
 
   const res = await fetch(GAS_URL,{
     method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
+    headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({
       action:"addQR",
       qr: qr,
-      name: "SCANNED QR",
+      name:"SCANNED QR",
       lat: lat,
       lng: lng,
       centerLat: lat,
@@ -136,3 +181,6 @@ async function saveQR(qr, lat, lng, radius){
 }
 
 </script>
+
+</body>
+</html>
