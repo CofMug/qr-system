@@ -397,7 +397,7 @@ function exportExcel(){
 
   rows.forEach(r=>{
     csv +=
-`${r[0]},${r[1]},"${r[2]}",${r[3]},${r[4]},${r[5]},${r[6]},${r[7]}\n`;
+`${formatTime(r[0])},${r[1]},"${r[2]}",${r[3]},${r[4]},${r[5]},${r[6]},${r[7]}\n`;
   });
 
   const blob = new Blob([csv], {
@@ -453,7 +453,7 @@ function exportPDF(){
   rows.forEach(r=>{
     html += `
     <tr>
-      <td>${r[0]}</td>
+      <td>${formatTime(r[0])}</td>
       <td>${r[1]}</td>
       <td class="qr">${r[2]}</td>
       <td>${r[3]}</td>
