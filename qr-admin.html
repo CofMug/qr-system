@@ -1,119 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QR Admin</title>
+
+<style>
+body{font-family:Arial;background:#0f172a;color:white;padding:10px;}
+.card{background:#1e293b;padding:15px;border-radius:12px;max-width:500px;margin:auto;}
+input,button{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:none;}
+button{background:#2563eb;color:white;}
+#list{margin-top:10px;}
+.item{background:#334155;padding:10px;margin-top:10px;border-radius:10px;}
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>QR ADMIN</h2>
+
+<input id="qr" placeholder="QR Code">
+<input id="name" placeholder="Name">
+<input id="lat" placeholder="Latitude">
+<input id="lng" placeholder="Longitude">
+<input id="radius" placeholder="Radius">
+
+<button onclick="addQR()">Add QR</button>
+
+<div id="list">Loading...</div>
+
+</div>
+
 <script>
 
 const GAS_URL = "https://script.google.com/macros/s/AKfycbw7mtiLRNBdcY_boO-6D--U0xwFSP7JKUelZkrvKQj64JwWuRpxgOmnO58x0AvMphV4/exec";
 
-// ================= ADD QR =================
+// ================= ADD =================
 async function addQR(){
 
-  const payload = {
-    action: "addQR",
-    qr: qr.value.trim(),
-    name: name.value.trim(),
-    lat: lat.value.trim(),
-    lng: lng.value.trim(),
-    radius: radius.value.trim()
-  };
-
-  const res = await fetch(GAS_URL,{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body: JSON.stringify(payload)
-  });
-
-  const data = await res.json();
-
-  if(data.status){
-    alert("✅ QR Registered");
-    loadQRs();
-  } else {
-    alert("❌ " + (data.message || "Failed"));
+  if(!qr.value || !name.value){
+    alert("Fill all fields");
+    return;
   }
-}
-
-// ================= LOAD QRs =================
-async function loadQRs(){
 
   const res = await fetch(GAS_URL,{
     method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
+    headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({
-      action:"getQRs"
+      action:"addQR",
+      qr: qr.value,
+      name: name.value,
+      lat: lat.value,
+      lng: lng.value,
+      radius: radius.value
     })
   });
 
   const data = await res.json();
 
-  if(!data.status){
-    document.getElementById("list").innerHTML =
-      "❌ Failed to load QR list";
-    return;
+  if(data.status){
+    alert("QR Added");
+    loadQRs();
+  } else {
+    alert(data.message || "Error");
   }
-
-  let html = "";
-
-  data.data.forEach(r => {
-
-    const qrCode = r[0];
-    const name = r[1];
-    const radius = r[4];
-
-    html += `
-      <div style="background:#334155;padding:12px;margin-top:10px;border-radius:10px;">
-        <b>${escapeHtml(qrCode)}</b><br>
-        ${escapeHtml(name)}<br>
-        Radius: ${radius}m<br><br>
-
-        <button onclick="deleteQR('${qrCode}')">
-          Delete
-        </button>
-      </div>
-    `;
-  });
-
-  document.getElementById("list").innerHTML = html;
 }
 
-// ================= DELETE QR =================
+// ================= LOAD =================
+async function loadQRs(){
+
+  try{
+
+    const res = await fetch(GAS_URL,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ action:"getQRs" })
+    });
+
+    const data = await res.json();
+
+    if(!data.status){
+      list.innerHTML = "Failed loading";
+      return;
+    }
+
+    let html = "";
+
+    data.data.forEach(r => {
+
+      html += `
+        <div class="item">
+          <b>${r[0]}</b><br>
+          ${r[1]}<br>
+          Radius: ${r[4]}m<br><br>
+
+          <button onclick="deleteQR('${r[0]}')">Delete</button>
+        </div>
+      `;
+    });
+
+    list.innerHTML = html;
+
+  } catch(err){
+    list.innerHTML = "Error loading data";
+  }
+}
+
+// ================= DELETE =================
 async function deleteQR(qr){
 
   if(!confirm("Delete QR?")) return;
 
-  const res = await fetch(GAS_URL,{
+  await fetch(GAS_URL,{
     method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
+    headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({
       action:"deleteQR",
       qr: qr
     })
   });
 
-  const data = await res.json();
-
-  if(data.status){
-    loadQRs();
-  } else {
-    alert("❌ " + (data.message || "Delete failed"));
-  }
-}
-
-// ================= SAFE ESCAPE =================
-function escapeHtml(text){
-
-  return String(text)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+  loadQRs();
 }
 
 // ================= INIT =================
 loadQRs();
 
 </script>
+
+</body>
+</html>
