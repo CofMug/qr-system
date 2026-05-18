@@ -47,7 +47,7 @@
   <p id="result">Waiting...</p>
 </div>
 
-<div class="actions" id="actions">
+<div class="actions" id="actions" style="display:none;">
 
   <button onclick="scanAgain()">
     Scan New
@@ -102,61 +102,145 @@ function onScan(text){
 
   scanner.stop();
 
-  navigator.geolocation.getCurrentPosition(pos=>{
+  document.getElementById("result").innerHTML =
+    "📍 Getting GPS location...";
 
-    const lat = pos.coords.latitude;
-    const lng = pos.coords.longitude;
-    const acc = pos.coords.accuracy;
+  // ================= GPS =================
+  navigator.geolocation.getCurrentPosition(
 
-    // GMT+8 TIME
-    const now = new Date();
+    // SUCCESS
+    pos => {
 
-    const gmt8 =
-      new Date(now.getTime() + (8 * 60 * 60 * 1000));
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const acc = pos.coords.accuracy;
 
-    const timestamp =
-      gmt8.toISOString().replace("T"," ").substring(0,19);
+      // 🚨 ACCURACY CHECK
+      if(acc > 100){
 
-    document.getElementById("result").innerText =
-`
-✅ Scan Successful
+        document.getElementById("result").innerHTML =
+        `
+        ❌ GPS accuracy too weak (${Math.round(acc)}m)
 
-QR:
-${text}
+        Please:
+        - Turn ON GPS
+        - Go outside/open area
+        - Enable High Accuracy Mode
+        `;
 
-Latitude:
-${lat}
+        document.getElementById("actions").style.display =
+          "block";
 
-Longitude:
-${lng}
+        return;
 
-Accuracy:
-${acc} meters
+      }
 
-Time (GMT+8):
-${timestamp}
-`;
+      // 🕒 GMT+8
+      const timestamp =
+        new Date().toLocaleString("en-PH",{
+          timeZone:"Asia/Manila",
+          year:"numeric",
+          month:"2-digit",
+          day:"2-digit",
+          hour:"2-digit",
+          minute:"2-digit",
+          second:"2-digit",
+          hour12:false
+        });
 
-    fetch(GAS_URL,{
-      method:"POST",
-      body: JSON.stringify({
-        action:"save",
-        user:user.username,
-        qr:text,
-        lat:lat,
-        lng:lng,
-        accuracy:acc,
-        timestamp:timestamp
-      })
-    });
+      // 🗺 MAP PREVIEW
+      const map =
+        `https://maps.google.com/?q=${lat},${lng}`;
 
-    document.getElementById("actions").style.display =
-      "block";
+      // ================= DISPLAY =================
+      document.getElementById("result").innerHTML =
+      `
+      <b>✅ Scan Successful</b><br><br>
 
-  });
+      <b>QR:</b><br>
+      ${text}<br><br>
+
+      <b>Latitude:</b><br>
+      ${lat}<br><br>
+
+      <b>Longitude:</b><br>
+      ${lng}<br><br>
+
+      <b>Accuracy:</b><br>
+      ${Math.round(acc)} meters<br><br>
+
+      <b>Time:</b><br>
+      ${timestamp}<br><br>
+
+      <a href="${map}" target="_blank">
+      Open Map
+      </a>
+      `;
+
+      // ================= SAVE =================
+      fetch(GAS_URL,{
+        method:"POST",
+        body: JSON.stringify({
+          action:"save",
+          user:user.username,
+          qr:text,
+          lat:lat,
+          lng:lng,
+          accuracy:acc,
+          timestamp:timestamp
+        })
+      });
+
+      document.getElementById("actions").style.display =
+        "block";
+
+    },
+
+    // ERROR
+    err => {
+
+      let msg = "";
+
+      switch(err.code){
+
+        case 1:
+          msg =
+          "❌ GPS permission denied";
+          break;
+
+        case 2:
+          msg =
+          "❌ GPS unavailable";
+          break;
+
+        case 3:
+          msg =
+          "❌ GPS timeout";
+          break;
+
+        default:
+          msg =
+          "❌ GPS error";
+      }
+
+      document.getElementById("result").innerHTML =
+        msg;
+
+      document.getElementById("actions").style.display =
+        "block";
+
+    },
+
+    // OPTIONS
+    {
+      enableHighAccuracy:true,
+      timeout:10000,
+      maximumAge:0
+    }
+
+  );
 
 }
-
 // ================= BUTTONS =================
 function scanAgain(){
 
