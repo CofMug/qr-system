@@ -62,7 +62,7 @@ async function loadQRs(){
     html += `
       <div style="
         background:#334155;
-        padding:10px;
+        padding:12px;
         margin-top:10px;
         border-radius:10px;
       ">
@@ -107,10 +107,10 @@ async function deleteQR(qr){
   }
 }
 
-// ================= ESCAPE HTML =================
+// ================= SAFE HTML ESCAPE =================
 function escapeHtml(text){
 
-  return text
+  return String(text)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
