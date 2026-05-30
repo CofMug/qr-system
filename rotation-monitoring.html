@@ -148,6 +148,7 @@ async function getMonitoringData(date, mode){
 
   renderSummary(data.summary);
   renderTable(data);
+  renderHeader(data);
 
 }
 
@@ -167,12 +168,12 @@ function renderTable(res){
 
   let html = "";
 
-  res.data.forEach((row, i) => {
+  res.data.forEach(row => {
 
     html += `<tr>`;
 
-    // ================= ROW LABEL =================
-    html += `<td>Rotation ${i+1}</td>`;
+    // ================= QR LABEL (FIXED) =================
+    html += `<td><b>${row.qr}</b></td>`;
 
     // ================= SCANS =================
     row.scans.forEach(s => {
@@ -192,8 +193,32 @@ function renderTable(res){
   tbody.innerHTML = html;
 }
 
+//---------------RENDER HEADER----------------------------
+function renderHeader(res){
+
+  const thead = document.getElementById("thead");
+
+  if(!res.headers){
+    thead.innerHTML = "";
+    return;
+  }
+
+  let html = "<tr>";
+
+  res.headers.forEach(h => {
+    html += `<th>${h}</th>`;
+  });
+
+  html += "</tr>";
+
+  thead.innerHTML = html;
+}
+
+
 window.onload = () => {
 loadAllMonitoring();
+renderHeader(res);
+renderTable(res);
 };
 
 </script>
