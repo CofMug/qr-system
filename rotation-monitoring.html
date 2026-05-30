@@ -85,7 +85,7 @@ async function loadMonitoring(){
       method:"POST",
       body:JSON.stringify({
         action:"monitoring",
-        date:date
+        date: document.getElementById("dateFilter").value
       })
     });
 
