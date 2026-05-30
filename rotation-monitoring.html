@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="style.css">
   <style>
-    table{
-      width:100%;
-      border-collapse:collapse;
-      font-size:12px;
+    table {
+      display:block;
+      overflow-x:auto;
+      white-space:nowrap;
     }
     
     th,td{
@@ -46,21 +46,27 @@
     </div>
 
 <script>
-  
+
 const GAS_URL =
   "https://script.google.com/macros/s/AKfycbw7mtiLRNBdcY_boO-6D--U0xwFSP7JKUelZkrvKQj64JwWuRpxgOmnO58x0AvMphV4/exec";
-  
-  const user =
-  JSON.parse(localStorage.getItem("user"));
-  
-  if(!user){
-    window.location.href="rotation-monitoring.html";
-  }
 
+const user = JSON.parse(localStorage.getItem("user"));
+
+if(!user){
+  window.location.href="rotation-monitoring.html";
+}
+
+// ================= SUMMARY =================
 function renderSummary(s){
 
+  if(!s){
+    document.getElementById("summary").innerHTML =
+      "<b>No data available</b>";
+    return;
+  }
+
   document.getElementById("summary").innerHTML = `
-    <div style="background:#1e293b;padding:10px;border-radius:10px;margin-bottom:10px;">
+    <div style="background:#1e293b;padding:10px;border-radius:10px;margin-bottom:10px;color:white;">
       <b>Rotations:</b> ${s.totalRotations}<br>
       <b>QR Points:</b> ${s.totalQR}<br>
       <b>Completed:</b> ${s.completed}<br>
@@ -70,47 +76,74 @@ function renderSummary(s){
   `;
 }
 
+// ================= LOAD =================
 async function loadMonitoring(){
 
-  const res = await fetch(GAS_URL,{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({
-      action:"monitoring",
-      date: document.getElementById("dateFilter").value
-    })
-  });
+  try{
 
-  const data = await res.json();
+    const res = await fetch(GAS_URL,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({
+        action:"monitoring",
+        date: document.getElementById("dateFilter").value
+      })
+    });
 
-  renderSummary(data.summary);
-  renderTable(data);
+    const data = await res.json();
+
+    if(!data.status){
+      alert("Failed loading data");
+      return;
+    }
+
+    renderSummary(data.summary);
+    renderTable(data);
+
+  }catch(err){
+    alert("Error: " + err.message);
+  }
 
 }
 
+// ================= TABLE =================
 function renderTable(res){
 
+  const tbody = document.getElementById("tbody");
+  const thead = document.getElementById("thead");
+
+  if(!res.data || res.data.length === 0){
+    tbody.innerHTML = "<tr><td colspan='100%'>No logs found</td></tr>";
+    return;
+  }
+
+  // HEADER
   let head = "<tr><th>QR</th>";
 
-  res.rotations.forEach(r=>{
+  (res.rotations || []).forEach(r=>{
     head += `<th>${r}</th>`;
   });
 
   head += "</tr>";
+  thead.innerHTML = head;
 
-  document.getElementById("thead").innerHTML = head;
-
+  // BODY
   let body = "";
 
   res.data.forEach(row=>{
 
     body += "<tr>";
 
+    // QR name
     body += `<td>${row.qr}</td>`;
 
+    // scans
     row.scans.forEach(s=>{
+
+      const isMiss = (s.status === "MISS" || s.status === "MISSED");
+
       body += `
-        <td class="${s.status === 'MISS' ? 'missed' : ''}">
+        <td class="${isMiss ? 'missed' : ''}">
           ${s.time}
         </td>
       `;
@@ -120,11 +153,10 @@ function renderTable(res){
 
   });
 
-  document.getElementById("tbody").innerHTML = body;
+  tbody.innerHTML = body;
 
 }
 
-  
 </script>
 </body>
 </html>
