@@ -495,65 +495,6 @@ function exportPDF(){
 
 loadLogs();
 
-async function loadMonitoring(){
-
-  const res = await fetch(GAS_URL,{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({
-      action:"monitoring",
-      date: document.getElementById("dateFilter")?.value,
-      user: selectedUser
-    })
-  });
-
-  const data = await res.json();
-
-  renderTable(data);
-
-}
-
-function renderTable(res){
-
-  let html = "";
-
-  // HEADER
-  let header = "<tr><th>QR</th>";
-
-  res.rotations.forEach(r=>{
-    header += `<th>${r}</th>`;
-  });
-
-  header += "</tr>";
-
-  document.getElementById("thead").innerHTML = header;
-
-  // BODY
-  res.data.forEach(row=>{
-
-    html += "<tr>";
-
-    row.forEach((cell,i)=>{
-
-      if(i === 0){
-        html += `<td>${cell}</td>`;
-      } else {
-
-        html += `
-          <td class="${cell === 'MISSED' ? 'missed' : ''}">
-            ${cell}
-          </td>
-        `;
-      }
-
-    });
-
-    html += "</tr>";
-
-  });
-
-  document.getElementById("tbody").innerHTML = html;
-}
 
 </script>
 
