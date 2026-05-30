@@ -35,9 +35,25 @@
       
       <div id="summary"></div>
       
-      <input type="date" id="dateFilter">
-      <button onclick="loadMonitoring()">Load</button>
+      <div class="filters">
       
+        <input type="date" id="dateFilter">
+      
+        <button onclick="loadMonitoring()">
+          Today Shift
+        </button>
+      
+        <button onclick="loadYesterdayShift()">
+          Yesterday Shift
+        </button>
+      
+        <button onclick="loadAllMonitoring()">
+          All Data
+        </button>
+      
+      </div>
+      
+      <h3 id="shiftTitle"></h3>
       <table>
         <thead id="thead"></thead>
         <tbody id="tbody"></tbody>
@@ -79,34 +95,65 @@ function renderSummary(s){
 // ================= LOAD =================
 async function loadMonitoring(){
 
-  try{
+  const selectedDate =
+    document.getElementById("dateFilter").value ||
+    new Date().toISOString().split("T")[0];
 
-    const res = await fetch(GAS_URL,{
-      method:"POST",
-      body:JSON.stringify({
-        action:"monitoring",
-        date: document.getElementById("dateFilter").value
-      })
-    });
+  await getMonitoringData(
+    selectedDate,
+    "todayShift"
+  );
 
-    const data = await res.json();
+}
 
-    if(!data.status){
-      alert("Failed loading data");
-      return;
-    }
+async function loadYesterdayShift(){
 
-    renderSummary(data.summary);
-    renderTable(data);
+  const d = new Date();
 
-  }catch(err){
-    alert("Error: " + err.message);
-  }
+  d.setDate(d.getDate()-1);
+
+  const date =
+    d.toISOString().split("T")[0];
+
+  await getMonitoringData(
+    date,
+    "yesterdayShift"
+  );
+
+}
+
+async function loadAllMonitoring(){
+
+  await getMonitoringData(
+    "",
+    "all"
+  );
+
+}
+
+async function getMonitoringData(date, mode){
+
+  const res = await fetch(GAS_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"monitoring",
+      date:date,
+      mode:mode
+    })
+  });
+
+  const data = await res.json();
+
+  renderSummary(data.summary);
+  renderTable(data);
 
 }
 
 // ================= TABLE =================
 function renderTable(res){
+  document.getElementById("shiftTitle")
+    .innerHTML =
+      `Shift: ${res.shiftLabel}`;
 
   const tbody = document.getElementById("tbody");
   const thead = document.getElementById("thead");
@@ -155,6 +202,10 @@ function renderTable(res){
   tbody.innerHTML = body;
 
 }
+
+window.onload = () => {
+loadAllMonitoring();
+};
 
 </script>
 </body>
