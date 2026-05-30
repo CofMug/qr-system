@@ -92,10 +92,6 @@ th{
   font-weight:bold;
 }
 
-.success{
-  background:#d4edda;
-}
-
 </style>
 
 </head>
@@ -168,31 +164,6 @@ th{
   </div>
 
 </div>
-<div class="card">
-
-  <h2>Scan Monitoring</h2>
-  
-    <div class="table-wrap">
-      
-      <table>
-      
-        <thead>
-          <tr>
-            <th>QR</th>
-            <th>Plan 1</th>
-            <th>Plan 2</th>
-            <th>Plan 3</th>
-            <th>Plan 4</th>
-          </tr>
-        </thead>
-      
-      <tbody id="monitorBody"></tbody>
-    
-    </table>
-  
-  </div>
-
-</div>
 
 <script>
 
@@ -237,51 +208,6 @@ async function loadLogs(){
 
   populateUsers();
   renderLogs();
-
-}
-
-async function loadMonitoring(){
-
-  const res = await fetch(GAS_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"monitoring"
-    })
-  });
-
-  const data = await res.json();
-
-  let html = "";
-
-  data.data.forEach(r=>{
-
-    html += "<tr>";
-
-    r.forEach((c,index)=>{
-
-      if(index===0){
-        html += `<td>${c}</td>`;
-      }else{
-
-        html += `
-          <td class="${
-            c==="MISSED"
-            ? "missed"
-            : "success"
-          }">
-            ${c}
-          </td>
-        `;
-      }
-
-    });
-
-    html += "</tr>";
-
-  });
-
-  document.getElementById("monitorBody").innerHTML =
-    html;
 
 }
 
