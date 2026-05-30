@@ -4,31 +4,44 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="style.css">
+  <style>
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:12px;
+    }
+    
+    th,td{
+      border:1px solid #334155;
+      padding:8px;
+      text-align:center;
+    }
+    
+    .missed{
+      background:#fff176;
+      color:#b91c1c;
+      font-weight:bold;
+    }
+    
+    #summary{
+      font-size:13px;
+    }
+  </style>
 </head>
   <body>
     <div class="card">
-    
-      <h2>Scan Monitoring</h2>
       
-      <div class="table-wrap">
+      <h2>📊 Patrol Monitoring</h2>
       
-        <table>
-          
-          <thead>
-          <tr>
-            <th>QR</th>
-            <th>Plan 1</th>
-            <th>Plan 2</th>
-            <th>Plan 3</th>
-            <th>Plan 4</th>
-          </tr>
-          </thead>
-          
-          <tbody id="monitorBody"></tbody>
-        
-        </table>
+      <div id="summary"></div>
       
-      </div>
+      <input type="date" id="dateFilter">
+      <button onclick="loadMonitoring()">Load</button>
+      
+      <table>
+        <thead id="thead"></thead>
+        <tbody id="tbody"></tbody>
+      </table>
     
     </div>
 
@@ -44,66 +57,74 @@ const GAS_URL =
     window.location.href="rotation-monitoring.html";
   }
 
-  
-  async function loadMonitoring(){
+function renderSummary(s){
+
+  document.getElementById("summary").innerHTML = `
+    <div style="background:#1e293b;padding:10px;border-radius:10px;margin-bottom:10px;">
+      <b>Rotations:</b> ${s.totalRotations}<br>
+      <b>QR Points:</b> ${s.totalQR}<br>
+      <b>Completed:</b> ${s.completed}<br>
+      <b>Missed:</b> ${s.missed}<br>
+      <b>Compliance:</b> ${s.compliance}%
+    </div>
+  `;
+}
+
+async function loadMonitoring(){
 
   const res = await fetch(GAS_URL,{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({
       action:"monitoring",
-      date: document.getElementById("dateFilter")?.value,
-      user: selectedUser
+      date: document.getElementById("dateFilter").value
     })
   });
 
   const data = await res.json();
 
+  renderSummary(data.summary);
   renderTable(data);
 
 }
 
 function renderTable(res){
 
-  let html = "";
-
-  // HEADER
-  let header = "<tr><th>QR</th>";
+  let head = "<tr><th>QR</th>";
 
   res.rotations.forEach(r=>{
-    header += `<th>${r}</th>`;
+    head += `<th>${r}</th>`;
   });
 
-  header += "</tr>";
+  head += "</tr>";
 
-  document.getElementById("thead").innerHTML = header;
+  document.getElementById("thead").innerHTML = head;
 
-  // BODY
+  let body = "";
+
   res.data.forEach(row=>{
 
-    html += "<tr>";
+    body += "<tr>";
 
-    row.forEach((cell,i)=>{
+    body += `<td>${row.qr}</td>`;
 
-      if(i === 0){
-        html += `<td>${cell}</td>`;
-      } else {
-
-        html += `
-          <td class="${cell === 'MISSED' ? 'missed' : ''}">
-            ${cell}
-          </td>
-        `;
-      }
-
+    row.scans.forEach(s=>{
+      body += `
+        <td class="${s.status === 'MISS' ? 'missed' : ''}">
+          ${s.time}
+        </td>
+      `;
     });
 
-    html += "</tr>";
+    body += "</tr>";
 
   });
 
-  document.getElementById("tbody").innerHTML = html;
+  document.getElementById("tbody").innerHTML = body;
+
 }
+
+  
 </script>
 </body>
 </html>
