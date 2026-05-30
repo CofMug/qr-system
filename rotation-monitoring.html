@@ -152,56 +152,43 @@ async function getMonitoringData(date, mode){
 
 // ================= TABLE =================
 function renderTable(res){
-  document.getElementById("shiftTitle")
-    .innerHTML =
-      `Shift: ${res.shiftLabel}`;
 
   const tbody = document.getElementById("tbody");
-  const thead = document.getElementById("thead");
 
   if(!res.data || res.data.length === 0){
-    tbody.innerHTML = "<tr><td colspan='100%'>No logs found</td></tr>";
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="100%">No data found</td>
+      </tr>
+    `;
     return;
   }
 
-  // HEADER
-  let head = "<tr><th>QR</th>";
+  let html = "";
 
-  (res.rotations || []).forEach(r=>{
-    head += `<th>${r}</th>`;
-  });
+  res.data.forEach((row, i) => {
 
-  head += "</tr>";
-  thead.innerHTML = head;
+    html += `<tr>`;
 
-  // BODY
-  let body = "";
+    // ================= ROW LABEL =================
+    html += `<td>Rotation ${i+1}</td>`;
 
-  res.data.forEach(row=>{
+    // ================= SCANS =================
+    row.scans.forEach(s => {
 
-    body += "<tr>";
-
-    // QR name
-    body += `<td>${row.qr}</td>`;
-
-    // scans
-    row.scans.forEach(s=>{
-
-      const isMiss = (s.status === "MISS" || s.status === "MISSED");
-
-      body += `
-        <td class="${isMiss ? 'missed' : ''}">
+      html += `
+        <td class="${s.status === 'MISS' ? 'missed' : ''}">
           ${s.time}
         </td>
       `;
+
     });
 
-    body += "</tr>";
+    html += `</tr>`;
 
   });
 
-  tbody.innerHTML = body;
-
+  tbody.innerHTML = html;
 }
 
 window.onload = () => {
