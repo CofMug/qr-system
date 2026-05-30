@@ -1,0 +1,88 @@
+
+<div class="card">
+
+  <h2>Scan Monitoring</h2>
+  
+  <div class="table-wrap">
+  
+    <table>
+      
+      <thead>
+      <tr>
+        <th>QR</th>
+        <th>Plan 1</th>
+        <th>Plan 2</th>
+        <th>Plan 3</th>
+        <th>Plan 4</th>
+      </tr>
+      </thead>
+      
+      <tbody id="monitorBody"></tbody>
+    
+    </table>
+  
+  </div>
+
+</div>
+
+<script>
+  async function loadMonitoring(){
+
+  const res = await fetch(GAS_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      action:"monitoring",
+      date: document.getElementById("dateFilter")?.value,
+      user: selectedUser
+    })
+  });
+
+  const data = await res.json();
+
+  renderTable(data);
+
+}
+
+function renderTable(res){
+
+  let html = "";
+
+  // HEADER
+  let header = "<tr><th>QR</th>";
+
+  res.rotations.forEach(r=>{
+    header += `<th>${r}</th>`;
+  });
+
+  header += "</tr>";
+
+  document.getElementById("thead").innerHTML = header;
+
+  // BODY
+  res.data.forEach(row=>{
+
+    html += "<tr>";
+
+    row.forEach((cell,i)=>{
+
+      if(i === 0){
+        html += `<td>${cell}</td>`;
+      } else {
+
+        html += `
+          <td class="${cell === 'MISSED' ? 'missed' : ''}">
+            ${cell}
+          </td>
+        `;
+      }
+
+    });
+
+    html += "</tr>";
+
+  });
+
+  document.getElementById("tbody").innerHTML = html;
+}
+</script>
