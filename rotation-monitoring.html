@@ -1,29 +1,36 @@
+<!DOCTYPE html>
+<html>
 
-<div class="card">
-
-  <h2>Scan Monitoring</h2>
-  
-  <div class="table-wrap">
-  
-    <table>
-      
-      <thead>
-      <tr>
-        <th>QR</th>
-        <th>Plan 1</th>
-        <th>Plan 2</th>
-        <th>Plan 3</th>
-        <th>Plan 4</th>
-      </tr>
-      </thead>
-      
-      <tbody id="monitorBody"></tbody>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="style.css">
+</head>
+  <body>
+    <div class="card">
     
-    </table>
-  
-  </div>
-
-</div>
+      <h2>Scan Monitoring</h2>
+      
+      <div class="table-wrap">
+      
+        <table>
+          
+          <thead>
+          <tr>
+            <th>QR</th>
+            <th>Plan 1</th>
+            <th>Plan 2</th>
+            <th>Plan 3</th>
+            <th>Plan 4</th>
+          </tr>
+          </thead>
+          
+          <tbody id="monitorBody"></tbody>
+        
+        </table>
+      
+      </div>
+    
+    </div>
 
 <script>
   async function loadMonitoring(){
@@ -86,3 +93,5 @@ function renderTable(res){
   document.getElementById("tbody").innerHTML = html;
 }
 </script>
+</body>
+  
