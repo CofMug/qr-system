@@ -165,6 +165,7 @@ th{
 
 </div>
 
+
 <script>
 
 const GAS_URL =
@@ -490,6 +491,50 @@ function exportPDF(){
   
 
 loadLogs();
+
+
+
+function renderTable(res){
+
+  let html = "";
+
+  // HEADER
+  let header = "<tr><th>QR</th>";
+
+  res.rotations.forEach(r=>{
+    header += `<th>${r}</th>`;
+  });
+
+  header += "</tr>";
+
+  document.getElementById("thead").innerHTML = header;
+
+  // BODY
+  res.data.forEach(row=>{
+
+    html += "<tr>";
+
+    row.forEach((cell,i)=>{
+
+      if(i === 0){
+        html += `<td>${cell}</td>`;
+      } else {
+
+        html += `
+          <td class="${cell === 'MISSED' ? 'missed' : ''}">
+            ${cell}
+          </td>
+        `;
+      }
+
+    });
+
+    html += "</tr>";
+
+  });
+
+  document.getElementById("tbody").innerHTML = html;
+}
 
 </script>
 
