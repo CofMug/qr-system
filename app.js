@@ -47,3 +47,21 @@ async function registerUser(){
     alert(data.message || "Registration failed");
   }
 }
+
+async function loadMonitoring(){
+
+  const res = await fetch(GAS_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      action:"monitoring",
+      date: document.getElementById("dateFilter")?.value,
+      user: selectedUser
+    })
+  });
+
+  const data = await res.json();
+
+  renderTable(data);
+
+}
